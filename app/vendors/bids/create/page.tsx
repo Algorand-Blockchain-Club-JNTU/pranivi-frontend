@@ -4,10 +4,18 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, Plus, Trash2, Upload, Calendar, DollarSign, FileText, CheckCircle2 } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Upload, Calendar, DollarSign, FileText, CheckCircle2 } from 'lucide-react'
+
+// Define an interface for the item structure
+interface BidItem {
+  name: string;
+  description: string;
+  quantity: string;
+  unitPrice: string;
+}
 
 export default function CreateBid() {
-  const [items, setItems] = useState([{ name: "", description: "", quantity: "", unitPrice: "" }])
+  const [items, setItems] = useState<BidItem[]>([{ name: "", description: "", quantity: "", unitPrice: "" }])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
@@ -15,19 +23,19 @@ export default function CreateBid() {
     setItems([...items, { name: "", description: "", quantity: "", unitPrice: "" }])
   }
 
-  const removeItem = (index) => {
+  const removeItem = (index: number) => {
     const newItems = [...items]
     newItems.splice(index, 1)
     setItems(newItems)
   }
 
-  const handleItemChange = (index, field, value) => {
+  const handleItemChange = (index: number, field: keyof BidItem, value: string) => {
     const newItems = [...items]
     newItems[index][field] = value
     setItems(newItems)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
@@ -227,6 +235,7 @@ export default function CreateBid() {
                     </button>
                   </div>
 
+                  {/* Rest of the form remains unchanged */}
                   {/* Delivery Information */}
                   <div>
                     <h2 className="text-xl font-bold text-slate-900 mb-4">Delivery Information</h2>
@@ -419,4 +428,3 @@ export default function CreateBid() {
     </div>
   )
 }
-

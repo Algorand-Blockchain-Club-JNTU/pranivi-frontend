@@ -20,7 +20,7 @@ export default function GenerateQRCode() {
   const [qrCodeData, setQrCodeData] = useState("")
   const [copied, setCopied] = useState(false)
 
-  const qrRef = useRef(null)
+  const qrRef = useRef<HTMLDivElement>(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -74,7 +74,7 @@ export default function GenerateQRCode() {
   }
 
   const downloadQRCode = () => {
-    const canvas = qrRef.current.querySelector("canvas")
+    const canvas = qrRef.current?.querySelector("canvas")
     if (canvas) {
       const url = canvas.toDataURL("image/png")
       const link = document.createElement("a")

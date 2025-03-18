@@ -4,35 +4,30 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Home,
-  ShoppingBag,
-  Package,
-  Truck,
-  QrCode,
-  FileText,
-  Wallet,
-  FileCheck,
-  Users,
-  Settings,
-  LogOut,
-  Bell,
-  Plus,
-  Filter,
-  Search,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  ArrowUpDown,
-  Eye,
-  Coins,
-} from "lucide-react"
+import { Home, ShoppingBag, Package, Truck, QrCode, FileText, Wallet, FileCheck, Users, Settings, LogOut, Bell, Plus, Filter, Search, CheckCircle2, Clock, XCircle, ArrowUpDown, Eye, Coins } from 'lucide-react'
+
+// Define interfaces for type safety
+interface Bid {
+  id: string;
+  title: string;
+  client: string;
+  date: string;
+  amount: number;
+  status: 'active' | 'won' | 'lost';
+  dueDate: string;
+  category: string;
+  hasBlockchainContract: boolean;
+}
+
+interface CategoryCount {
+  [key: string]: number;
+}
 
 export default function VendorBids() {
-  const [activeTab, setActiveTab] = useState("active")
+  const [activeTab, setActiveTab] = useState<'all' | 'active' | 'won' | 'lost'>("active")
   const [searchQuery, setSearchQuery] = useState("")
-  const [sortBy, setSortBy] = useState("date")
-  const [sortOrder, setSortOrder] = useState("desc")
+  const [sortBy, setSortBy] = useState<'id' | 'date' | 'amount' | 'dueDate' | 'client'>("date")
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>("desc")
   const [walletConnected, setWalletConnected] = useState(false)
 
   const connectWallet = () => {
@@ -40,7 +35,7 @@ export default function VendorBids() {
   }
 
   // Dummy data for bids
-  const bids = [
+  const bids: Bid[] = [
     {
       id: "BID-2023-089",
       title: "Office Supplies for Headquarters",
@@ -159,7 +154,7 @@ export default function VendorBids() {
     return sortOrder === "asc" ? comparison : -comparison
   })
 
-  const toggleSort = (field) => {
+  const toggleSort = (field: 'id' | 'date' | 'amount' | 'dueDate' | 'client') => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc")
     } else {
@@ -425,7 +420,7 @@ export default function VendorBids() {
                             <div className="flex items-center gap-2">
                               <span className="font-medium">{bid.id}</span>
                               {bid.hasBlockchainContract && (
-                                <Coins className="h-4 w-4 text-blue-500" title="Has blockchain contract" />
+                                <Coins className="h-4 w-4 text-blue-500" aria-label="Has blockchain contract" />
                               )}
                             </div>
                           </td>
@@ -548,7 +543,7 @@ export default function VendorBids() {
                 </div>
                 <div className="space-y-3">
                   {Object.entries(
-                    bids.reduce((acc, bid) => {
+                    bids.reduce<CategoryCount>((acc, bid) => {
                       acc[bid.category] = (acc[bid.category] || 0) + 1
                       return acc
                     }, {}),
@@ -567,4 +562,3 @@ export default function VendorBids() {
     </div>
   )
 }
-

@@ -25,30 +25,7 @@ import {
   Clock,
   AlertCircle,
   Coins,
-} from "lucide-react"
-export {
-  Home,
-  ShoppingBag,
-  Package,
-  Truck,
-  QrCode,
-  FileText,
-  Wallet,
-  FileCheck,
-  Users,
-  Settings,
-  LogOut,
-  Bell,
-  Search,
-  ArrowUpDown,
-  Eye,
-  Download,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  Coins,
-} from "lucide-react"
-
+} from 'lucide-react'
 
 export default function VendorOrders() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -185,7 +162,7 @@ export default function VendorOrders() {
     return sortOrder === "asc" ? comparison : -comparison
   })
 
-  const toggleSort = (field) => {
+  const toggleSort = (field: string) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc")
     } else {
@@ -195,7 +172,7 @@ export default function VendorOrders() {
   }
 
   // Get status badge
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
         return (
@@ -463,7 +440,7 @@ export default function VendorOrders() {
                             <div className="flex items-center gap-2">
                               <span className="font-medium">{po.id}</span>
                               {po.hasBlockchainContract && (
-                                <Coins className="h-4 w-4 text-blue-500" title="Has blockchain contract" />
+                                <Coins className="h-4 w-4 text-blue-500" aria-label="Has blockchain contract" />
                               )}
                             </div>
                           </td>
@@ -539,7 +516,7 @@ export default function VendorOrders() {
                 </div>
                 <div className="space-y-3">
                   {Object.entries(
-                    purchaseOrders.reduce((acc, po) => {
+                    purchaseOrders.reduce<Record<string, number>>((acc, po) => {
                       acc[po.company] = (acc[po.company] || 0) + 1
                       return acc
                     }, {}),
@@ -601,4 +578,3 @@ export default function VendorOrders() {
     </div>
   )
 }
-

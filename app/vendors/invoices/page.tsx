@@ -6,19 +6,34 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Home, ShoppingBag, Package, Truck, QrCode, FileText, Wallet, FileCheck, Users, Settings, LogOut, Bell, Search, ArrowUpDown, Eye, Download, CheckCircle2, Clock, AlertCircle, Coins, Plus, DollarSign, Calendar, CreditCard, Receipt, FileUp } from 'lucide-react'
 
+// Define interfaces for type safety
+interface Invoice {
+  id: string;
+  orderId: string;
+  title: string;
+  company: string;
+  date: string;
+  dueDate: string;
+  amount: number;
+  status: 'paid' | 'pending' | 'overdue';
+  paymentMethod: string | null;
+  paymentDate: string | null;
+  hasBlockchainVerification: boolean;
+}
+
 export default function VendorInvoices() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState('date')
-  const [sortOrder, setSortOrder] = useState('desc')
+  const [sortBy, setSortBy] = useState<'id' | 'date' | 'dueDate' | 'amount' | 'company'>('date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [walletConnected, setWalletConnected] = useState(false)
-  const [filterStatus, setFilterStatus] = useState('all')
+  const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending' | 'overdue'>('all')
   
   const connectWallet = () => {
     setWalletConnected(!walletConnected)
   }
   
   // Dummy data for invoices
-  const invoices = [
+  const invoices: Invoice[] = [
     {
       id: 'INV-2023-089',
       orderId: 'PO-2023-156',
@@ -154,7 +169,7 @@ export default function VendorInvoices() {
     return sortOrder === 'asc' ? comparison : -comparison
   })
   
-  const toggleSort = (field) => {
+  const toggleSort = (field: 'id' | 'date' | 'dueDate' | 'amount' | 'company') => {
     if (sortBy === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
     } else {
@@ -164,7 +179,7 @@ export default function VendorInvoices() {
   }
   
   // Get status badge
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: 'paid' | 'pending' | 'overdue') => {
     switch (status) {
       case 'paid':
         return (
@@ -518,7 +533,7 @@ export default function VendorInvoices() {
                             <div className="flex items-center gap-2">
                               <span className="font-medium">{invoice.id}</span>
                               {invoice.hasBlockchainVerification && (
-                                <Coins className="h-4 w-4 text-blue-500" title="Blockchain verified" />
+                                <Coins className="h-4 w-4 text-blue-500" aria-label="Blockchain verified" />
                               )}
                             </div>
                           </td>

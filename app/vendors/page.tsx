@@ -4,29 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  BarChart3,
-  FileText,
-  Package,
-  Wallet,
-  Bell,
-  Settings,
-  LogOut,
-  Home,
-  ShoppingBag,
-  Truck,
-  QrCode,
-  FileCheck,
-  Users,
-  Plus,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  Coins,
-  Zap,
-  Shield,
-  Database,
-} from "lucide-react"
+import { BarChart3, FileText, Package, Wallet, Bell, Settings, LogOut, Home, ShoppingBag, Truck, QrCode, FileCheck, Users, Plus, CheckCircle2, Clock, AlertCircle, Coins, Zap, Shield, Database } from 'lucide-react'
 
 export default function VendorsDashboard() {
   const [isVerified, setIsVerified] = useState(true)
@@ -678,7 +656,7 @@ function VendorKYC() {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // In a real app, you would submit the form data to your backend
     console.log("Form submitted:", formData)
@@ -1271,4 +1249,3 @@ function VendorKYC() {
     </div>
   )
 }
-
