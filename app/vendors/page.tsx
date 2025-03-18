@@ -22,14 +22,23 @@ import {
   CheckCircle2,
   Clock,
   AlertCircle,
+  Coins,
+  Zap,
+  Shield,
+  Database,
 } from "lucide-react"
 
 export default function VendorsDashboard() {
   const [isVerified, setIsVerified] = useState(true)
+  const [walletConnected, setWalletConnected] = useState(false)
 
   // If the vendor is not verified, redirect to KYC page
   if (!isVerified) {
     return <VendorKYC />
+  }
+
+  const connectWallet = () => {
+    setWalletConnected(!walletConnected)
   }
 
   return (
@@ -44,6 +53,14 @@ export default function VendorsDashboard() {
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
+              <Button
+                variant="outline"
+                className={`font-medium ${walletConnected ? "border-green-500 text-green-600" : "border-blue-500 text-blue-600"} hover:bg-blue-50 flex items-center gap-2`}
+                onClick={connectWallet}
+              >
+                <Wallet className="h-4 w-4" />
+                {walletConnected ? "Wallet Connected" : "Connect Wallet"}
+              </Button>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                   <span className="font-semibold text-blue-600">AC</span>
@@ -142,6 +159,15 @@ export default function VendorsDashboard() {
                 >
                   <Users className="h-5 w-5" />
                   <span>Company Profile</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/vendors/smart-contracts"
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <Coins className="h-5 w-5" />
+                  <span>Smart Contracts</span>
                 </Link>
               </li>
             </ul>
@@ -245,6 +271,114 @@ export default function VendorsDashboard() {
             </Card>
           </div>
 
+          {/* Blockchain Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Smart Contract Status</h3>
+                  <Zap className="h-6 w-6" />
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-100">Active Contracts</span>
+                    <span className="font-bold">5</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-100">Pending Approvals</span>
+                    <span className="font-bold">2</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-100">Total Value Locked</span>
+                    <span className="font-bold">$45,750</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-blue-400">
+                  <Link href="/vendors/smart-contracts">
+                    <Button variant="secondary" className="w-full bg-white text-blue-600 hover:bg-blue-50">
+                      Manage Contracts
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-slate-900">Wallet Balance</h3>
+                  <Coins className="h-6 w-6 text-yellow-500" />
+                </div>
+                {walletConnected ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500">ETH Balance</span>
+                      <span className="font-bold">2.45 ETH</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500">USDC Balance</span>
+                      <span className="font-bold">5,230 USDC</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500">PRV Tokens</span>
+                      <span className="font-bold">1,500 PRV</span>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-slate-200">
+                      <Button className="w-full">Manage Funds</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <Database className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-500 mb-4">Connect your wallet to view your balance</p>
+                    <Button onClick={connectWallet} className="w-full">
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Connect Wallet
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-slate-900">Security Status</h3>
+                  <Shield className="h-6 w-6 text-green-500" />
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">KYC Verified</p>
+                      <p className="text-xs text-slate-500">Completed on Mar 10, 2025</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">2FA Enabled</p>
+                      <p className="text-xs text-slate-500">Last used 2 days ago</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                      <AlertCircle className="h-5 w-5 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Wallet Backup</p>
+                      <p className="text-xs text-slate-500">Backup your wallet keys</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Recent Activity and Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div className="lg:col-span-2">
@@ -299,6 +433,19 @@ export default function VendorsDashboard() {
                         <p className="text-xs text-slate-400 mt-1">2 days ago</p>
                       </div>
                     </div>
+
+                    <div className="flex items-start gap-4 p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                      <div className="w-10 h-10 rounded-full bg-purple-100 flex-shrink-0 flex items-center justify-center">
+                        <Coins className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Smart contract executed</p>
+                        <p className="text-sm text-slate-500">
+                          Contract #SC-2023-015 for Order #ORD-2023-039 was executed successfully.
+                        </p>
+                        <p className="text-xs text-slate-400 mt-1">3 days ago</p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -336,6 +483,13 @@ export default function VendorsDashboard() {
                       <Button variant="outline" className="w-full justify-start">
                         <FileCheck className="h-4 w-4 mr-2" />
                         Submit Quality Report
+                      </Button>
+                    </Link>
+
+                    <Link href="/vendors/smart-contracts/create">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Coins className="h-4 w-4 mr-2" />
+                        Create Smart Contract
                       </Button>
                     </Link>
                   </div>
@@ -658,6 +812,16 @@ function VendorKYC() {
                         rows={4}
                       ></textarea>
                     </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Business Email *</label>
+                      <input
+                        type="email"
+                        className="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter business email"
+                        required
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -704,6 +868,24 @@ function VendorKYC() {
                           className="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Enter phone number"
                           required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Alternative Email</label>
+                        <input
+                          type="email"
+                          className="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter alternative email"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Alternative Phone</label>
+                        <input
+                          type="tel"
+                          className="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter alternative phone"
                         />
                       </div>
                     </div>
@@ -857,6 +1039,16 @@ function VendorKYC() {
                         <option value="net45">Net 45</option>
                         <option value="net60">Net 60</option>
                       </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Wallet Address (Optional)</label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter blockchain wallet address"
+                      />
+                      <p className="text-xs text-slate-500 mt-1">For receiving payments via blockchain</p>
                     </div>
 
                     <div className="bg-blue-50 p-4 rounded-lg">
