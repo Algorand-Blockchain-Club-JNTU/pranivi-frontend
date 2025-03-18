@@ -51,6 +51,9 @@ export function Header() {
           <Link href="/contact" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">
             Contact
           </Link>
+          <Link href="/vendors" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">
+            Vendors Dashboard
+          </Link>
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
@@ -92,6 +95,12 @@ export function Header() {
             className="text-slate-700 hover:text-blue-600 font-medium py-2 px-4 rounded hover:bg-slate-50"
           >
             Contact
+          </Link>
+          <Link
+            href="/vendors"
+            className="text-slate-700 hover:text-blue-600 font-medium py-2 px-4 rounded hover:bg-slate-50"
+          >
+            Vendors Dashboard
           </Link>
           <Link href="/login" className="mt-2">
             <Button className="w-full">Login</Button>
