@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${outfit.className} antialiased bg-slate-50 to-slate-100 text-slate-900 dark:bg-slate-900 dark:to-slate-950 dark:text-slate-50`}>
         <ThemeProvider
           attribute="class"
