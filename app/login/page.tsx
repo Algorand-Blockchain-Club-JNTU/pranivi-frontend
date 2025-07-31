@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useMemo } from "react"
 import { useWallet } from "@txnlab/use-wallet-react"
 import {
   Card,
@@ -74,40 +75,33 @@ const menuItems = [
 export default function VendorDashboard() {
   const { activeAccount } = useWallet()
 
+  const shortAddress = useMemo(() => {
+    if (!activeAccount?.address) return ""
+    return `${activeAccount.address.slice(0, 10)}...${activeAccount.address.slice(-4)}`
+  }, [activeAccount])
+
   if (!activeAccount) {
     return (
       <div className="container mx-auto p-8 text-center">
-        <p>Please connect your wallet to login</p>
+        <p className="text-lg text-gray-700">Please connect your wallet to login</p>
       </div>
     )
   }
 
-  const shortAddress = `${activeAccount.address.slice(0, 10)}...${activeAccount.address.slice(-4)}`
-
   return (
-    <div className="container mx-auto p-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Welcome, Vendor</h1>
-        <p className="text-gray-600">Wallet: {shortAddress}</p>
+    <main className="container mx-auto p-8" aria-label="Vendor Dashboard">
+      <header className="mb-10">
+        <h1 className="text-3xl font-bold">Welcome, Vendor</h1>
+        <p className="text-gray-600 mt-1">Wallet: {shortAddress}</p>
       </header>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {menuItems.map(({ title, icon: Icon, href, description }) => (
           <Link href={href} key={title}>
-            <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="h-full cursor-pointer hover:shadow-lg transition duration-200 ease-in-out">
               <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
                   <Icon className="h-5 w-5" />
                   {title}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <CardDescription>{description}</CardDescription>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </section>
-    </div>
-  )
-}
