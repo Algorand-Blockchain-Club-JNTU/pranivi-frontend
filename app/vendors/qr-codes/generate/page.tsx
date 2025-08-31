@@ -3,12 +3,7 @@
 import { useState, useRef, useMemo } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   ArrowLeft,
   Download,
@@ -19,8 +14,18 @@ import {
   QrCode,
 } from "lucide-react"
 
+// ✅ Shipment details type
+interface ShipmentDetails {
+  orderId: string
+  trackingNumber: string
+  shipmentType: string
+  destination: string
+  items: string
+  notes: string
+}
+
 export default function GenerateQRCode() {
-  const [shipmentDetails, setShipmentDetails] = useState({
+  const [shipmentDetails, setShipmentDetails] = useState<ShipmentDetails>({
     orderId: "",
     trackingNumber: "",
     shipmentType: "",
@@ -34,11 +39,15 @@ export default function GenerateQRCode() {
   const [qrCodeData, setQrCodeData] = useState("")
   const qrRef = useRef<HTMLDivElement>(null)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // ✅ Form state handler
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target
     setShipmentDetails((prev) => ({ ...prev, [name]: value }))
   }
 
+  // ✅ Utilities
   const generateTrackingNumber = () =>
     "TRK" + Math.floor(Math.random() * 1e7).toString().padStart(7, "0")
 
@@ -70,26 +79,32 @@ export default function GenerateQRCode() {
     link.click()
   }
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(qrCodeData)
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const trackingLink = useMemo(() => (
-    `https://pranivi.com/track/${shipmentDetails.trackingNumber}`
-  ), [shipmentDetails.trackingNumber])
+  const trackingLink = useMemo(
+    () => `https://pranivi.com/track/${shipmentDetails.trackingNumber}`,
+    [shipmentDetails.trackingNumber]
+  )
 
   return (
     <div className="min-h-screen bg-slate-50 pt-24 pb-12">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <Link href="/vendors" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Dashboard
+          {/* Back */}
+          <Link
+            href="/vendors"
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" /> Back to Dashboard
           </Link>
 
-          <h1 className="text-3xl font-bold text-slate-900 mb-6">Generate Shipment QR Code</h1>
+          <h1 className="text-3xl font-bold text-slate-900 mb-6">
+            Generate Shipment QR Code
+          </h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Form */}
@@ -99,60 +114,48 @@ export default function GenerateQRCode() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={generateQRCode} className="space-y-4">
+                  {/* Required text fields */}
                   {[
-                    { label: "Order ID *", name: "orderId", type: "text", required: true },
-                    { label: "Tracking Number", name: "trackingNumber", type: "text" },
-                    { label: "Destination *", name: "destination", type: "text", required: true },
-                  ].map(({ label, name, type, required }) => (
-                    <div key={name}>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-                      <input
-                        name={name}
-                        type={type}
-                        value={(shipmentDetails as any)[name]}
-                        onChange={handleChange}
-                        placeholder={`Enter ${name.replace(/([A-Z])/g, ' $1')}`}
-                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required={required}
-                      />
-                      {name === "trackingNumber" && (
-                        <p className="text-xs text-slate-500 mt-1">Will auto-generate if left blank</p>
-                      )}
-                    </div>
-                  ))}
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Shipment Type *</label>
-                    <select
-                      name="shipmentType"
-                      value={shipmentDetails.shipmentType}
+                    { label: "Order ID *", name: "orderId", required: true },
+                    { label: "Tracking Number", name: "trackingNumber" },
+                    { label: "Destination *", name: "destination", required: true },
+                  ].map(({ label, name, required }) => (
+                    <InputField
+                      key={name}
+                      label={label}
+                      name={name as keyof ShipmentDetails}
+                      value={shipmentDetails[name as keyof ShipmentDetails]}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    >
-                      <option value="">Select type</option>
-                      {["standard", "express", "overnight", "international", "fragile"].map(type => (
-                        <option key={type} value={type}>{type[0].toUpperCase() + type.slice(1)}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {["items", "notes"].map((name, i) => (
-                    <div key={name}>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
-                        {name === "items" ? "Items Description *" : "Additional Notes"}
-                      </label>
-                      <textarea
-                        name={name}
-                        value={(shipmentDetails as any)[name]}
-                        onChange={handleChange}
-                        rows={name === "notes" ? 2 : 3}
-                        placeholder={name === "items" ? "Describe items" : "Special handling instructions"}
-                        required={name === "items"}
-                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
+                      required={required}
+                      note={name === "trackingNumber" ? "Will auto-generate if left blank" : undefined}
+                    />
                   ))}
+
+                  {/* Shipment type */}
+                  <SelectField
+                    label="Shipment Type *"
+                    name="shipmentType"
+                    value={shipmentDetails.shipmentType}
+                    onChange={handleChange}
+                    options={["standard", "express", "overnight", "international", "fragile"]}
+                    required
+                  />
+
+                  {/* Textareas */}
+                  <TextAreaField
+                    label="Items Description *"
+                    name="items"
+                    value={shipmentDetails.items}
+                    onChange={handleChange}
+                    required
+                  />
+                  <TextAreaField
+                    label="Additional Notes"
+                    name="notes"
+                    value={shipmentDetails.notes}
+                    onChange={handleChange}
+                    rows={2}
+                  />
 
                   <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
                     Generate QR Code
@@ -171,7 +174,9 @@ export default function GenerateQRCode() {
                   <div className="flex flex-col items-center">
                     <div ref={qrRef} className="p-4 bg-white rounded shadow mb-6">
                       <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeData)}`}
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                          qrCodeData
+                        )}`}
                         alt="QR Code"
                         width={200}
                         height={200}
@@ -182,21 +187,23 @@ export default function GenerateQRCode() {
                       <InfoRow icon={Package} label="Order ID" value={shipmentDetails.orderId} />
                       <InfoRow icon={Truck} label="Tracking Number" value={shipmentDetails.trackingNumber} />
 
+                      {/* Actions */}
                       <div className="flex gap-2">
                         <Button className="flex-1" onClick={downloadQRCode}>
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
+                          <Download className="h-4 w-4 mr-2" /> Download
                         </Button>
-                        <Button variant="outline" className="flex-1" onClick={copyToClipboard}>
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => copyToClipboard(qrCodeData)}
+                        >
                           {copied ? (
                             <>
-                              <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" />
-                              Copied!
+                              <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" /> Copied!
                             </>
                           ) : (
                             <>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Copy Data
+                              <Copy className="h-4 w-4 mr-2" /> Copy Data
                             </>
                           )}
                         </Button>
@@ -233,10 +240,7 @@ export default function GenerateQRCode() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        navigator.clipboard.writeText(trackingLink)
-                        alert("Tracking link copied!")
-                      }}
+                      onClick={() => copyToClipboard(trackingLink)}
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -247,6 +251,106 @@ export default function GenerateQRCode() {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ✅ Reusable components
+function InputField({
+  label,
+  name,
+  value,
+  onChange,
+  required,
+  note,
+}: {
+  label: string
+  name: keyof ShipmentDetails
+  value: string
+  onChange: React.ChangeEventHandler<HTMLInputElement>
+  required?: boolean
+  note?: string
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+      <input
+        name={name}
+        type="text"
+        value={value}
+        onChange={onChange}
+        placeholder={`Enter ${label}`}
+        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required={required}
+      />
+      {note && <p className="text-xs text-slate-500 mt-1">{note}</p>}
+    </div>
+  )
+}
+
+function SelectField({
+  label,
+  name,
+  value,
+  onChange,
+  options,
+  required,
+}: {
+  label: string
+  name: keyof ShipmentDetails
+  value: string
+  onChange: React.ChangeEventHandler<HTMLSelectElement>
+  options: string[]
+  required?: boolean
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required={required}
+      >
+        <option value="">Select type</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt[0].toUpperCase() + opt.slice(1)}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+function TextAreaField({
+  label,
+  name,
+  value,
+  onChange,
+  rows = 3,
+  required,
+}: {
+  label: string
+  name: keyof ShipmentDetails
+  value: string
+  onChange: React.ChangeEventHandler<HTMLTextAreaElement>
+  rows?: number
+  required?: boolean
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+      <textarea
+        name={name}
+        value={value}
+        onChange={onChange}
+        rows={rows}
+        required={required}
+        placeholder={`Enter ${label}`}
+        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
     </div>
   )
 }
