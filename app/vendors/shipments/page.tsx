@@ -1,9 +1,19 @@
 "use client"
 
 import { Calendar, CheckCircle2, Coins, Package, Truck } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
-const shipments = [
+// ✅ Define types
+type Shipment = {
+  id: string
+  date: string
+  customer: string
+  trackingNumber: string
+  status: "preparing" | "scheduled" | "in-transit" | "delivered"
+  hasBlockchainVerification: boolean
+}
+
+const shipments: Shipment[] = [
   {
     id: "72849202",
     date: "2023-01-02",
@@ -38,6 +48,7 @@ const shipments = [
   },
 ]
 
+// ✅ Column definition
 const columns = [
   { name: "ID", uid: "id" },
   { name: "Date", uid: "date" },
@@ -47,13 +58,46 @@ const columns = [
   { name: "Actions", uid: "actions" },
 ]
 
+// ✅ Extracted Status Badge
+function StatusBadge({ status }: { status: Shipment["status"] }) {
+  const base = "px-2 py-1 rounded-full text-xs font-medium flex items-center w-fit"
+  switch (status) {
+    case "preparing":
+      return (
+        <span className={`${base} bg-yellow-100 text-yellow-800`}>
+          <Package className="h-3 w-3 mr-1" /> Preparing
+        </span>
+      )
+    case "scheduled":
+      return (
+        <span className={`${base} bg-blue-100 text-blue-800`}>
+          <Calendar className="h-3 w-3 mr-1" /> Scheduled
+        </span>
+      )
+    case "in-transit":
+      return (
+        <span className={`${base} bg-purple-100 text-purple-800`}>
+          <Truck className="h-3 w-3 mr-1" /> In Transit
+        </span>
+      )
+    case "delivered":
+      return (
+        <span className={`${base} bg-green-100 text-green-800`}>
+          <CheckCircle2 className="h-3 w-3 mr-1" /> Delivered
+        </span>
+      )
+    default:
+      return null
+  }
+}
+
 export default function ShipmentsPage() {
   const [filter, setFilter] = useState("")
-  const [sortBy, setSortBy] = useState("date")
-  const [sortOrder, setSortOrder] = useState("desc")
+  const [sortBy, setSortBy] = useState<keyof Shipment>("date")
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
 
-  // Add type for the 'field' parameter
-  const toggleSort = (field: string) => {
+  // ✅ Sorting toggle
+  const toggleSort = (field: keyof Shipment) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc")
     } else {
@@ -62,69 +106,34 @@ export default function ShipmentsPage() {
     }
   }
 
-  const sortedShipments = [...shipments].sort((a, b) => {
+  // ✅ useMemo for performance
+  const sortedShipments = useMemo(() => {
     const order = sortOrder === "asc" ? 1 : -1
+    return [...shipments].sort((a, b) => {
+      if (sortBy === "date") {
+        return (new Date(a.date).getTime() - new Date(b.date).getTime()) * order
+      }
+      if (sortBy === "customer") {
+        return a.customer.localeCompare(b.customer) * order
+      }
+      return 0
+    })
+  }, [sortBy, sortOrder])
 
-    if (sortBy === "date") {
-      return (new Date(a.date).getTime() - new Date(b.date).getTime()) * order
-    }
-
-    if (sortBy === "customer") {
-      return a.customer.localeCompare(b.customer) * order
-    }
-
-    return 0
-  })
-
-  const filteredShipments = sortedShipments.filter((shipment) => {
-    if (filter === "") return true
-
-    return (
-      shipment.customer.toLowerCase().includes(filter.toLowerCase()) ||
-      shipment.trackingNumber.toLowerCase().includes(filter.toLowerCase())
+  const filteredShipments = useMemo(() => {
+    if (!filter) return sortedShipments
+    return sortedShipments.filter(
+      (s) =>
+        s.customer.toLowerCase().includes(filter.toLowerCase()) ||
+        s.trackingNumber.toLowerCase().includes(filter.toLowerCase())
     )
-  })
-
-  // Add type for the 'status' parameter
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "preparing":
-        return (
-          <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium flex items-center w-fit">
-            <Package className="h-3 w-3 mr-1" />
-            Preparing
-          </span>
-        )
-      case "scheduled":
-        return (
-          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium flex items-center w-fit">
-            <Calendar className="h-3 w-3 mr-1" />
-            Scheduled
-          </span>
-        )
-      case "in-transit":
-        return (
-          <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium flex items-center w-fit">
-            <Truck className="h-3 w-3 mr-1" />
-            In Transit
-          </span>
-        )
-      case "delivered":
-        return (
-          <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium flex items-center w-fit">
-            <CheckCircle2 className="h-3 w-3 mr-1" />
-            Delivered
-          </span>
-        )
-      default:
-        return null
-    }
-  }
+  }, [filter, sortedShipments])
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Shipments</h1>
 
+      {/* Filter */}
       <div className="mb-4">
         <input
           type="text"
@@ -135,15 +144,16 @@ export default function ShipmentsPage() {
         />
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full leading-normal">
+      {/* Table */}
+      <div className="overflow-x-auto rounded-lg shadow">
+        <table className="min-w-full leading-normal border-collapse">
           <thead>
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.uid}
-                  className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
-                  onClick={() => toggleSort(column.uid)}
+                  className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer select-none"
+                  onClick={() => toggleSort(column.uid as keyof Shipment)}
                 >
                   {column.name}
                   {sortBy === column.uid && <span>{sortOrder === "asc" ? " ▲" : " ▼"}</span>}
@@ -152,32 +162,39 @@ export default function ShipmentsPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredShipments.map((shipment) => (
-              <tr key={shipment.id}>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{shipment.id}</td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{shipment.date}</td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                  <div className="flex items-center">
-                    <div className="ml-3">
-                      <p className="text-gray-900 whitespace-no-wrap">{shipment.customer}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{shipment.trackingNumber}</td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                  {getStatusBadge(shipment.status)}
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                  {shipment.hasBlockchainVerification && (
-                    <Coins className="h-4 w-4 text-blue-500" aria-label="Blockchain Verified" />
-                  )}
+            {filteredShipments.length > 0 ? (
+              filteredShipments.map((shipment) => (
+                <tr
+                  key={shipment.id}
+                  className="hover:bg-gray-50 transition-colors duration-150"
+                >
+                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{shipment.id}</td>
+                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{shipment.date}</td>
+                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{shipment.customer}</td>
+                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{shipment.trackingNumber}</td>
+                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <StatusBadge status={shipment.status} />
+                  </td>
+                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    {shipment.hasBlockchainVerification && (
+                      <Coins className="h-4 w-4 text-blue-500" aria-label="Blockchain Verified" />
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="px-5 py-5 text-center text-gray-500 bg-white"
+                >
+                  No results found
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
     </div>
   )
 }
-
