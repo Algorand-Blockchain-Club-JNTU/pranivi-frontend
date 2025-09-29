@@ -1,30 +1,49 @@
-import { Marquee } from "@/components/ui/marquee"
-import Image from "next/image"
+"use client"
 
-export function PartnersSection() {
-  const partners = [
-    { name: "Microsoft", width: 120 },
-    { name: "Bettermarks", width: 120 },
-    { name: "Titanom", width: 120 },
-    { name: "Shift Nexus", width: 120 },
-  ]
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Github } from "lucide-react"
 
+const navLinks = ["Components", "Templates", "Showcase"]
+
+function NavLink({ title, href = "#" }: { title: string; href?: string }) {
   return (
-    <section className="py-16">
-      <Marquee pauseOnHover speed={30}>
-        {partners.map((partner) => (
-          <div key={partner.name} className="flex items-center justify-center w-48 h-16">
-            <Image
-              src={`/placeholder.svg?height=40&width=${partner.width}`}
-              alt={partner.name}
-              width={partner.width}
-              height={40}
-              className="opacity-50 hover:opacity-100 transition-opacity"
-            />
-          </div>
-        ))}
-      </Marquee>
-    </section>
+    <Link href={href} className="text-sm text-gray-600 hover:text-gray-900">
+      {title}
+    </Link>
   )
 }
 
+export function Navbar() {
+  return (
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-sm">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo and Menu */}
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500" />
+            <span className="font-semibold">Magic UI</span>
+            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">Beta</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-6">
+            {navLinks.map(link => (
+              <NavLink key={link} title={link} />
+            ))}
+          </div>
+        </div>
+
+        {/* GitHub Buttons */}
+        <div className="flex items-center gap-4">
+          <Button variant="outline" className="hidden sm:flex gap-2">
+            <Github className="h-4 w-4" />
+            <span>Star on GitHub</span>
+            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium">12,739</span>
+          </Button>
+          <Button variant="outline" size="icon" className="sm:hidden">
+            <Github className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </nav>
+  )
+}
