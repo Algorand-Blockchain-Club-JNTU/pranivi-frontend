@@ -3,13 +3,7 @@
 import Link from "next/link"
 import { useMemo } from "react"
 import { useWallet } from "@txnlab/use-wallet-react"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
   BarChart3,
   Package,
@@ -22,55 +16,34 @@ import {
 } from "lucide-react"
 
 const menuItems = [
-  {
-    title: "Orders",
-    icon: Package,
-    href: "/vendors/orders",
-    description: "View and manage your orders",
-  },
-  {
-    title: "Shipments",
-    icon: Truck,
-    href: "/vendors/shipments",
-    description: "Track and update shipments",
-  },
-  {
-    title: "Invoices",
-    icon: FileText,
-    href: "/vendors/invoices",
-    description: "Manage your invoices",
-  },
-  {
-    title: "Payments",
-    icon: CreditCard,
-    href: "/vendors/payments",
-    description: "View payment status",
-  },
-  {
-    title: "Bids",
-    icon: BarChart3,
-    href: "/vendors/bids",
-    description: "Submit and track bids",
-  },
-  {
-    title: "Quality Reports",
-    icon: ClipboardCheck,
-    href: "/vendors/quality",
-    description: "Quality control reports",
-  },
-  {
-    title: "QR Codes",
-    icon: QrCode,
-    href: "/vendors/qr-codes",
-    description: "Generate tracking QR codes",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    href: "/vendors/settings",
-    description: "Manage your account",
-  },
+  { title: "Orders", icon: Package, href: "/vendors/orders", description: "View and manage your orders" },
+  { title: "Shipments", icon: Truck, href: "/vendors/shipments", description: "Track and update shipments" },
+  { title: "Invoices", icon: FileText, href: "/vendors/invoices", description: "Manage your invoices" },
+  { title: "Payments", icon: CreditCard, href: "/vendors/payments", description: "View payment status" },
+  { title: "Bids", icon: BarChart3, href: "/vendors/bids", description: "Submit and track bids" },
+  { title: "Quality Reports", icon: ClipboardCheck, href: "/vendors/quality", description: "Quality control reports" },
+  { title: "QR Codes", icon: QrCode, href: "/vendors/qr-codes", description: "Generate tracking QR codes" },
+  { title: "Settings", icon: Settings, href: "/vendors/settings", description: "Manage your account" },
 ]
+
+// Reusable MenuCard component
+function MenuCard({ title, icon: Icon, description, href }: typeof menuItems[0]) {
+  return (
+    <Link href={href}>
+      <Card className="h-full cursor-pointer hover:shadow-lg transition-shadow duration-200 ease-in-out">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+            <Icon className="h-5 w-5" />
+            {title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CardDescription className="text-gray-600">{description}</CardDescription>
+        </CardContent>
+      </Card>
+    </Link>
+  )
+}
 
 export default function VendorDashboard() {
   const { activeAccount } = useWallet()
@@ -96,12 +69,10 @@ export default function VendorDashboard() {
       </header>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {menuItems.map(({ title, icon: Icon, href, description }) => (
-          <Link href={href} key={title}>
-            <Card className="h-full cursor-pointer hover:shadow-lg transition duration-200 ease-in-out">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                  <Icon className="h-5 w-5" />
-                  {title}
-                </CardTitle>
-              </CardHeader>
+        {menuItems.map(item => (
+          <MenuCard key={item.title} {...item} />
+        ))}
+      </section>
+    </main>
+  )
+}
